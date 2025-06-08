@@ -5,6 +5,8 @@ import { authMiddleware } from '../middleware/authMiddleware';
 
 const router = express.Router();
 
-router.post('/cloudinary', authMiddleware, upload.single('file'), uploadToCloudinary);
+router.post('/cloudinary', authMiddleware, upload.single('photo'), uploadToCloudinary);
+
+router.post('/cloudinary/file', authMiddleware, upload.single('file'), uploadToCloudinary)
 
 export default router;
