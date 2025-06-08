@@ -21,7 +21,7 @@ export const createAnimal = async (req: Request, res: Response): Promise<void> =
         const animal = await Animal.create({ type, name, age, breed, description, photo, shelter, color, health, weight, gender });
 
         // Генерируем QR-код с ссылкой на страницу животного
-        const animalPageUrl = `http://localhost:5000/api/animals/${animal._id}`;
+        const animalPageUrl = `${process.env.BACKEND_HOST}/api/animals/${animal._id}`;
         const qrCodeImage = await QRCode.toDataURL(animalPageUrl);
 
         // Добавляем QR-код в базу данных
@@ -111,6 +111,59 @@ export const updateAnimal = async (req: Request, res: Response): Promise<void> =
         res.status(500).json({ message: 'Ошибка при обновлении животного', error });
     }
 };
+
+export const addAnimalDocument = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { documentUrl } = req.body;
+
+    if (!documentUrl) {
+      res.status(400).json({ message: 'Не передан URL документа' });
+      return;
+    }
+
+    const animal = await Animal.findById(req.params.id);
+    if (!animal) {
+      res.status(404).json({ message: 'Животное не найдено' });
+      return;
+    }
+
+    // Добавляем документ, если его ещё нет
+    if (!animal.documents.includes(documentUrl)) {
+      animal.documents.push(documentUrl);
+      await animal.save();
+    }
+
+    res.status(200).json({ message: 'Документ добавлен', documents: animal.documents });
+  } catch (error) {
+    res.status(500).json({ message: 'Ошибка при добавлении документа', error });
+  }
+};
+
+export const removeAnimalDocument = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { documentUrl } = req.body;
+
+    if (!documentUrl) {
+      res.status(400).json({ message: 'Не передан URL документа' });
+      return;
+    }
+
+    const animal = await Animal.findById(req.params.id);
+    if (!animal) {
+      res.status(404).json({ message: 'Животное не найдено' });
+      return;
+    }
+
+    // Фильтруем массив документов
+    animal.documents = animal.documents.filter(doc => doc !== documentUrl);
+    await animal.save();
+
+    res.status(200).json({ message: 'Документ удалён', documents: animal.documents });
+  } catch (error) {
+    res.status(500).json({ message: 'Ошибка при удалении документа', error });
+  }
+};
+
 
 // Деактивизация объявления
 export const deactivateAnimal = async (req: Request, res: Response): Promise<void> => {

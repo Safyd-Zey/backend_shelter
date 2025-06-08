@@ -12,14 +12,25 @@ const storage = multer.diskStorage({
     }
 });
 
-// Фильтр файлов (только изображения)
+// Разрешённые типы MIME
+const allowedMimeTypes = [
+    'image/jpeg',
+    'image/png',
+    'image/webp',
+    'application/pdf',
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+];
+
 const fileFilter = (req: any, file: Express.Multer.File, cb: any) => {
-    if (file.mimetype.startsWith('image/')) {
+    if (allowedMimeTypes.includes(file.mimetype)) {
         cb(null, true);
     } else {
-        cb(new Error('Разрешены только изображения'), false);
+        cb(new Error('Разрешены только изображения и документы (PDF, DOCX и др.)'), false);
     }
 };
+
+
 
 // Middleware для загрузки фото
 export const upload = multer({ storage, fileFilter });

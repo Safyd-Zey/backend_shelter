@@ -15,6 +15,7 @@ const AnimalSchema = new mongoose.Schema({
   weight: { type: Number },
   gender: { type: String, enum: ['male', 'female'] },
   is_active: { type: Boolean, default: true },
+  documents: [{ type: String }],
 }, { timestamps: true });
 
 export const Animal = mongoose.model('Animal', AnimalSchema);
